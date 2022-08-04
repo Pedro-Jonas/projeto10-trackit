@@ -1,28 +1,50 @@
-import { useState } from "react";
-import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import axios from "axios";
+import ContextLogin from "../../Contexts/ContextLogin";
+import StyledForm from "../Styleds/StyledForm";
 
 export default function FormLogin(){
-    const [email, setEmail] = useState("");
-    const [senha, setSenha] = useState("");
+    const {email, setEmail} = useContext(ContextLogin);
+    const {senha, setSenha} = useContext(ContextLogin);
+    const {setToken} = useContext(ContextLogin);
 
     function handleForm(e){
         e.preventDefault();
     }
 
+    function sucess(resposta){
+        console.log(resposta);
+        setToken(resposta.data.token);
+    }
+
+    function error(){
+        alert("Email ou senha inválida");
+    }
+
     function submit(){
         console.log(email, senha);
+        if (email !== ""  && senha !== ""){
+            const login = {
+                email: email,
+	            password: senha,
+            }
+            console.log(login);
+            const request = axios.post("https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login", login);
+            request.then((resposta)=> sucess(resposta))
+            request.catch(()=> error())
+        }
     }
 
     return(
-        <Formstyled>
+        <StyledForm>
         <form onSubmit={handleForm}>
             <div className="inputs">
             <div className="input">
                 <input type="email" onChange={(e)=> setEmail(e.target.value)} required  placeholder="email" />
             </div>
             <div className="input" >
-                <input type="text" onChange={(e)=> setSenha(e.target.value)} required  placeholder="senha" />
+                <input type="password" onChange={(e)=> setSenha(e.target.value)} required  placeholder="senha" />
             </div>  
             </div>
         <div>
@@ -36,51 +58,6 @@ export default function FormLogin(){
         </div>
         </div>
 	    </form>
-        </Formstyled>
+        </StyledForm> 
     );
 };
-
-const Formstyled = styled.div`
-    margin-top: 30px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    input{
-        height: 45px;
-        border: 1px solid #D5D5D5;
-        border-radius: 5px;
-        margin-bottom: 5px;
-        font-weight: 400;
-        font-size: 19.976px;
-        line-height: 25px;
-        color: #DBDBDB;
-        padding-left: 11px;
-    }
-    .play{
-        height: 45px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 5px;
-        background-color: #52B6FF;
-        color: #FFFFFF;
-        font-weight: 400;
-        font-size: 20.976px;
-        line-height: 26px;
-        margin-bottom: 25px;
-    }
-    .link{
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    a{
-        font-weight: 400;
-        font-size: 13.976px;
-        line-height: 17px;  
-        color: #52B6FF;
-    }
-`;
